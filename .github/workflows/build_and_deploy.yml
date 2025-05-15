@@ -13,7 +13,7 @@ jobs:
       PROJECT_ID: netcarbon-datawarehouse
       SERVICE: api-flair
       IMAGE_LOCATION: landcover
-      SERVICE_ACCOUNT_MAIL: compte cicd-landcover@netcarbon-datawarehouse.iam.gserviceaccount.com
+      SERVICE_ACCOUNT_MAIL: cicd-landcover@netcarbon-datawarehouse.iam.gserviceaccount.com
 
     steps:
       - name: Checkout
@@ -40,14 +40,16 @@ jobs:
 
       - name: Deploy Image to Cloud Run
         run: |
-          gcloud run deploy $SERVICE \
+          gcloud beta run deploy $SERVICE \
             --image europe-west1-docker.pkg.dev/$PROJECT_ID/$IMAGE_LOCATION/$IMAGE_NAME:latest \
             --region europe-west4 \
-            --project=netcarbon-datawarehouse \
+            --project netcarbon-datawarehouse \
             --service-account $SERVICE_ACCOUNT_MAIL \
             --allow-unauthenticated \
-            --set-env-vars=FLAIR_DETECT_BATCH_SIZE=4,GARBAGE_COLLECTOR_FREQUENCY=10,CLEAN_ALL_FILES_AFTER_PREDICTION=true \
-            --execution-environment=gen2 \
+            --set-env-vars FLAIR_DETECT_BATCH_SIZE=4,GARBAGE_COLLECTOR_FREQUENCY=10,CLEAN_ALL_FILES_AFTER_PREDICTION=true \
+            --execution-environment gen2 \
+            --no-gpu-zonal-redundancy \
+            --gpu 1 \
             --cpu 4 \
             --memory 16Gi \
             --timeout 1800 \
